@@ -3,7 +3,7 @@ import os
 import pickle
 import sys
 import pandas as pd
-
+import time
 import numpy as np
 np.set_printoptions(precision=2)
 
@@ -21,14 +21,13 @@ from sklearn.svm import SVC
 
 class Classifier:
 
-	def __init__(self,embeddingsDir=""):
+	def __init__(self,embeddingsDir="",verbose=False):
 		self.util = Util()
 		if embeddingsDir == "":
 			self.embeddingsDir = self.util.embeddingsDir
 		else:
 			self.embeddingsDir = embeddingsDir
-		print ""
-
+		self.verbose=verbose
 	def train(self):
 		# Load embeddings from labels.csv and reps.csv 
 		print("Loading embeddings.")
@@ -58,38 +57,37 @@ class Classifier:
 			pickle.dump((le,clf), f)
 
 
-	def infer(classifierModelDir, reps,multiple=False,verbose=False):
+	def infer(self,classifierModelDir, reps,multiple=False):
 		"""
 		Calls a function to extract and process faces in an image, then predicts with 
 		some confidence what face exists in the image.
 		@Return: none
 		"""
-		with open(calssifierModelDir, 'rb') as f:
+		faces = []
+		with open(classifierModelDir, 'rb') as f:
 			if sys.version_info[0] < 3:
 					(le, clf) = pickle.load(f)
 			else:
 					(le, clf) = pickle.load(f, encoding='latin1')
-
-		for img in reps:
-			print("\n=== {} ===".format(img))
-			reps = getRep(img, multiple)
-			if len(reps) > 1:
-				print("List of faces in image from left to right")
-			for r in reps:
-				rep = r[1].reshape(1, -1)
-				bbx = r[0]
-				start = time.time()
-				predictions = clf.predict_proba(rep).ravel()
-				maxI = np.argmax(predictions)
-				person = le.inverse_transform(maxI)
-				confidence = predictions[maxI]
-				if verbose:
-					print("Prediction took {} seconds.".format(time.time() - start))
-				if multiple:
-					print("Predict {} @ x={} with {:.2f} confidence.".format(person.decode('utf-8'), bbx,
-																			 confidence))
-				else:
-					print("Predict {} with {:.2f} confidence.".format(person.decode('utf-8'), confidence))
-				if isinstance(clf, GMM):
-					dist = np.linalg.norm(rep - clf.means_[maxI])
-					print(" + Distance from the mean: {}".format(dist))
+		# process all faces in image
+		if len(reps) > 1:
+			print("List of faces in image from left to right")
+		for r in reps:
+			# iterate through all face vector representations in image
+			rep = r[0].reshape(1, -1)
+			bbx = r[1]
+			start = time.time()
+			predictions = clf.predict_proba(rep).ravel()
+			maxI = np.argmax(predictions)
+			person = le.inverse_transform(maxI)
+			confidence = predictions[maxI]
+			if self.verbose:
+				print("Prediction took {} seconds.".format(time.time() - start))
+			if multiple:
+				print("Predict {} @ x={} with {:.2f} confidence.".format(person.decode('utf-8'), bbx,
+																		 confidence))
+			else:
+				print("Predict {} with {:.2f} confidence.".format(person.decode('utf-8'), confidence))
+			# add prediction of each person in list
+			faces.append((person,confidence,bbx))
+		return faces

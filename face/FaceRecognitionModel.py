@@ -20,28 +20,33 @@ class FaceRecognitionModel():
 	# List of people
 	
 	def __init__(self):
-		self.SVM = Classifier()
+		self.SVM = Classifier(verbose=True)
 		self.processor = Processor(verbose=True)
 		self.util = util()
 
-	def learn():
+	def learn(self):
 		"""
 		Learns a new face.
 		"""
 		return ""
 
-	def recognize(imgs):
+	def recognize(self,img):
 		"""
 		Finds faces in an image and labels if they are recognized or not.
 		"""
-		# Get face representation
-		reps = self.processor.processImage(imgs)
+		# Create image object from img
+		
+		imgName = os.path.basename(img)
+		imgObject = openface.data.Image("?",imgName,img)
+		# Get face rAepresentation: list of (bb, face vectors)
+		reps = self.processor.processImage(imgObject)
 
 		# Pass reps into SVM classifier to get predictions
-		faces = SVM.infer(classifierModelDir,reps) # (classifierModelDir, imgs,multiple=False,verbose=False)
+		faces = self.SVM.infer(self.util.classifierModelDir,reps) # (classifierModelDir, imgs,multiple=False,verbose=False)
 
+		print faces
 
-	def find():
+	def find(self):
 			"""
 			Find all faces in the image and return locations (bounding boxes)
 			"""
@@ -65,4 +70,7 @@ class FaceRecognitionModel():
 
 if __name__ == '__main__':
 	fm = FaceRecognitionModel()
-	fm.learnAll("./training-images/")
+	# fm.learnAll("./training-images/")
+	fm.recognize("./test-images/max_1.jpg")
+	fm.recognize("./test-images/will_1.jpg")
+	fm.recognize("./test-images/arnold_1.jpeg")

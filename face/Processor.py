@@ -20,12 +20,12 @@ class Processor:
 
 	def processImage(self,imgObject,isTrain=False):
 		"""
-		Get aligned faces and their bounding boxes
+		Get aligned reps and their bounding boxes
 		"""
-		faces = [] 
+		reps = [] 
+		print("=== {} ===".format(imgObject.path))
 
 		# Preprocess image
-		print("=== {} ===".format(imgObject.path))
 		if isTrain: 
 			outDir = os.path.join(Processor.dirs.alignedImgsDir, imgObject.cls)
 			openface.helper.mkdirP(outDir)
@@ -37,7 +37,7 @@ class Processor:
 				if self.verbose:
 					print("  + Already found, skipping.")
 				return []
-		
+
 		imgPath = imgObject.path
 		rgbImg = imgObject.getRGB()
 		if rgbImg is None:
@@ -63,7 +63,7 @@ class Processor:
 			if isTrain:
 				cv.imwrite(imgName,alignedFace)
 
-			# Pass these faces through NN to get vec representation
+			# Pass these reps through NN to get vec representation
 			start = time.time()
 			rep = self.net.forward(alignedFace)
 			if self.verbose:
@@ -71,10 +71,10 @@ class Processor:
 				print("Representation:")
 				# print(rep)
 				print("-----\n")
-			faces.append((rep,bb)) 
+			reps.append((rep,bb)) 
 
-		# Return the bb's and their vec representations
-		return faces
+		# Return the bb's and their vec representations. Rep[0]=bounding box Rep[1]=vector 
+		return reps
 		 
 	# TODO Later, implement the following helper methods for modularity.
 	# def preprocessImage(self,imgObject):
