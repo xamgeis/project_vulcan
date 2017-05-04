@@ -2,12 +2,15 @@ import cv2 as cv
 import os
 import pickle
 import sys
-
-from operator import itemgetter
+import pandas as pd
 
 import numpy as np
-
 np.set_printoptions(precision=2)
+
+from operator import itemgetter
+from Util import Util
+
+
 
 import openface
 
@@ -17,17 +20,43 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 
 class Classifier:
-	fileDir = os.path.dirname(os.path.realpath(__file__))
-	modelDir = os.path.join(fileDir, 'models')
-	dlibModelDir = os.path.join(modelDir, 'dlib')
-	openfaceModelDir = os.path.join(modelDir, 'openface')
 
-
-	def __init__(self):
+	def __init__(self,embeddingsDir=""):
+		self.util = Util()
+		if embeddingsDir == "":
+			self.embeddingsDir = self.util.embeddingsDir
+		else:
+			self.embeddingsDir = embeddingsDir
 		print ""
 
-	def train():
-		return ""
+	def train(self):
+		# Load embeddings from labels.csv and reps.csv 
+		print("Loading embeddings.")
+		fname = "{}/labels.csv".format(self.embeddingsDir) 
+		labels = pd.read_csv(fname, header=None).as_matrix()[:,1]
+		labels = map(itemgetter(1), 
+								map(os.path.split, 
+									map(os.path.dirname, labels))) # Get the directory
+		fname = "{}/reps.csv".format(self.embeddingsDir)
+		embeddings = pd.read_csv(fname, header=None).as_matrix()
+
+		# Clean the data by encoding 
+		le = LabelEncoder().fit(labels)
+		labelsNum = le.transform(labels)
+		nClasses = len(le.classes_)
+		print("Training for {} classes.").format(nClasses)
+		
+		# initialize our LinearSVM classifier
+		clf = SVC(C=1, kernel='linear',probability=True)
+			# use LDA pipeline?
+		# fit the classifier with embeddings and labels
+		clf.fit(embeddings,labelsNum)	
+		# Save classifier to disk
+		fname = "{}/classifier.pkl".format(self.embeddingsDir)
+		print("Saving classifier to '{}'").format(fname)
+		with open(fname, 'w') as f:
+			pickle.dump((le,clf), f)
+
 
 	def infer(classifierModelDir, reps,multiple=False,verbose=False):
 		"""

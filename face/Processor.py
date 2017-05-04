@@ -26,6 +26,18 @@ class Processor:
 
 		# Preprocess image
 		print("=== {} ===".format(imgObject.path))
+		if isTrain: 
+			outDir = os.path.join(Processor.dirs.alignedImgsDir, imgObject.cls)
+			openface.helper.mkdirP(outDir)
+			outputPrefix = os.path.join(outDir, imgObject.name)
+			imgName = outputPrefix + ".png"
+			# TODO check if file is already found. if so, then nothing needs to be done.
+			# Otherwise, continue.
+			if os.path.isfile(imgName):
+				if self.verbose:
+					print("  + Already found, skipping.")
+				return []
+		
 		imgPath = imgObject.path
 		rgbImg = imgObject.getRGB()
 		if rgbImg is None:
@@ -35,13 +47,7 @@ class Processor:
 		if bbs is None:
 	 		raise Exception("Unable to find a face: {}".format(imgPath)) 
 		
-		if isTrain: 
-			outDir = os.path.join(Processor.dirs.alignedImgsDir, imgObject.cls)
-			openface.helper.mkdirP(outDir)
-			outputPrefix = os.path.join(outDir, imgObject.name)
-			imgName = outputPrefix + ".png"
-			# TODO check if file is already found. if so, then nothing needs to be done.
-			# Otherwise, continue.
+		
 		
 		for bb in bbs:
 			start = time.time()

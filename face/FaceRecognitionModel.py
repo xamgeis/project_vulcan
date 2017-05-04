@@ -21,7 +21,7 @@ class FaceRecognitionModel():
 	
 	def __init__(self):
 		self.SVM = Classifier()
-		self.processor = Processor()
+		self.processor = Processor(verbose=True)
 		self.util = util()
 
 	def learn():
@@ -58,7 +58,7 @@ class FaceRecognitionModel():
 			self.processor.processImage(imgObject,isTrain=True)
 		
 		# Train face detection model 
-		# SVM.train(generated-embeddings) 
+		self.SVM.train() 
 		# This will generate a new file called ./generated-embeddings/classifier.pkl. 
 		# This file has the SVM model you'll use to recognize new face
 		print("Finished learning all knowledge!")
