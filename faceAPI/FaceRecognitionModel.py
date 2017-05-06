@@ -6,17 +6,9 @@ from Classifier import Classifier
 from Processor import Processor
 from Util import Util as util
 class FaceRecognitionModel():
-	
-
-	# File dirs
-	fileDir = os.path.dirname(os.path.realpath(__file__))
-	modelDir = os.path.join(fileDir, 'models')
-	dlibModelDir = os.path.join(modelDir, 'dlib')
-	openfaceModelDir = os.path.join(modelDir, 'openface')
-	networkModel = os.path.join(openfaceModelDir, 'nn4.small2.v1.t7')
-	embeddingsDir = os.path.join(fileDir, 'generated-embeddings')
-	classifierModelDir = os.path.join(embeddingsDir,'classifier.pkl')
-
+		
+	# Class variables TODO 
+	 	
 	# List of people
 	
 	def __init__(self):
@@ -24,11 +16,16 @@ class FaceRecognitionModel():
 		self.processor = Processor(verbose=True)
 		self.util = util()
 
-	def learn(self):
+	def learn(self,dir):
 		"""
-		Learns a new face.
+		Learns a new face from a set of images in a directory.
 		"""
-		return ""
+		imgs = openface.data.iterImgs(dir)
+		for imgObject in imgs:
+			self.processor.processImage(imgObject,isTrain=True)
+		
+		# Train face detection model 
+		self.SVM.train() 
 
 	def recognize(self,img):
 		"""
@@ -43,7 +40,8 @@ class FaceRecognitionModel():
 
 		# Pass reps into SVM classifier to get predictions
 		faces = self.SVM.infer(self.util.classifierModelDir,reps) # (classifierModelDir, imgs,multiple=False,verbose=False)
-
+		# list of (person's name, confidence , bounding box)
+		# list of (string, float , rectangle object)
 		print faces
 
 	def find(self):

@@ -28,6 +28,7 @@ class Classifier:
 		else:
 			self.embeddingsDir = embeddingsDir
 		self.verbose=verbose
+
 	def train(self):
 		# Load embeddings from labels.csv and reps.csv 
 		print("Loading embeddings.")
