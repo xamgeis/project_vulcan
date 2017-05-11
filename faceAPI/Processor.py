@@ -16,7 +16,7 @@ class Processor:
 		self.align = openface.AlignDlib(self.dlibFacePredictor)
 		self.verbose = verbose
 		openface.helper.mkdirP(Processor.dirs.alignedImgsDir)
-
+	
 
 	def processImage(self,imgObject,isTrain=False):
 		"""
@@ -75,7 +75,38 @@ class Processor:
 
 		# Return the bb's and their vec representations. Rep[0]=bounding box Rep[1]=vector 
 		return reps
-		 
+	
+	def rect_to_css(self,rect):
+		"""
+		Convert a dlib 'rect' object to a tuple(top,right,bottom,left)
+		"""
+		return rect.top(), rect.right(), rect.bottom(), rect.left()
+
+	def markFace(self,frame,faces):
+		"""
+		Adds a bounding box with a label to an image.
+		
+		Params:
+		frame - cv numpy array?
+		faces - list of (string, float, rectangle)
+		"""
+		# Draw rectangle around faces
+		for face in faces:
+			name = face[0]
+			confidence = face[1]
+			(top,right,bottom,left) = self.rect_to_css(face[2]) # or is it (top,right,bottom,left?
+			text = "{0} - confidence of {1:.2f}%".format(name,confidence*100)
+
+			# Draw a box around the face
+			cv.rectangle(frame, (left, top), (right,bottom), (0, 255, 0), 2)
+
+			# Draw a label with a name below the face
+			cv.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), 2)
+			font = cv.FONT_HERSHEY_DUPLEX
+			cv.putText(frame,text, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+		return frame
+
+
 	# TODO Later, implement the following helper methods for modularity.
 	# def preprocessImage(self,imgObject):
 	# 	alignedFace = self.align(self.imgDim, imgObject, bb, 

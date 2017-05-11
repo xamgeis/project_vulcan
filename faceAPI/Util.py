@@ -9,6 +9,8 @@ class Util():
 	networkModel = os.path.join(openfaceModelDir, 'nn4.small2.v1.t7')
 	embeddingsDir = os.path.join(fileDir, 'generated-embeddings')
 	classifierModelDir = os.path.join(embeddingsDir,'classifier.pkl')
+	
+	# batch_representDir = os.path.join(fileDir,'classifier.pkl')
 
 	def __init__(self):
 		# do nothing

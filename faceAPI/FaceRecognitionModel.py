@@ -1,14 +1,14 @@
 
 import openface
 import os
-
+import subprocess 
 from Classifier import Classifier 
 from Processor import Processor
 from Util import Util as util
+
+import cv2 as cv
 class FaceRecognitionModel():
 		
-	# Class variables TODO 
-	 	
 	# List of people
 	
 	def __init__(self):
@@ -31,8 +31,8 @@ class FaceRecognitionModel():
 		"""
 		Finds faces in an image and labels if they are recognized or not.
 		"""
-		# Create image object from img
 		
+		# Create image object from img
 		imgName = os.path.basename(img)
 		imgObject = openface.data.Image("?",imgName,img)
 		# Get face rAepresentation: list of (bb, face vectors)
@@ -40,9 +40,10 @@ class FaceRecognitionModel():
 
 		# Pass reps into SVM classifier to get predictions
 		faces = self.SVM.infer(self.util.classifierModelDir,reps) # (classifierModelDir, imgs,multiple=False,verbose=False)
+		print faces
 		# list of (person's name, confidence , bounding box)
 		# list of (string, float , rectangle object)
-		print faces
+		return faces
 
 	def find(self):
 			"""
@@ -54,12 +55,17 @@ class FaceRecognitionModel():
 		"""
 		Learns from the entire dataset using the specified training-images directory.
 		"""
-
 		# process all images in the directory
 		imgs = openface.data.iterImgs(dir)
 		for imgObject in imgs:
-			self.processor.processImage(imgObject,isTrain=True)
-		
+			reps = self.processor.processImage(imgObject,isTrain=True)
+
+		# Create a directory for generated embeddings (if not already created)
+		openface.helper.mkdirP(self.util.embeddingsDir)
+		# create CSV files using csvigo called from openface source code
+		subprocess.call(['./batch-represent/main.lua',"-outDir",self.util.embeddingsDir ,"-data", self.util.alignedImgsDir])
+		# TODO change string directory ^ for batch-represent to a define package
+
 		# Train face detection model 
 		self.SVM.train() 
 		# This will generate a new file called ./generated-embeddings/classifier.pkl. 
@@ -68,7 +74,12 @@ class FaceRecognitionModel():
 
 if __name__ == '__main__':
 	fm = FaceRecognitionModel()
-	# fm.learnAll("./training-images/")
-	fm.recognize("./test-images/max_1.jpg")
-	fm.recognize("./test-images/will_1.jpg")
-	fm.recognize("./test-images/arnold_1.jpeg")
+# 	fm.learnAll("./training-images/")
+	f1 = "./face1.jpg"
+	face = fm.recognize(f1)
+	img = cv.imread(f1)
+	img = fm.processor.markFace(img,face)
+	cv.imwrite("./test.jpg",img)
+	cv.imshow("",img)
+	# fm.recognize("./test-images/will_1.jpg")
+	# fm.recognize("./test-images/arnold_1.jpeg")
