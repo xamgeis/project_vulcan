@@ -81,7 +81,10 @@ class Processor:
 		Convert a dlib 'rect' object to a tuple(top,right,bottom,left)
 		"""
 		return rect.top(), rect.right(), rect.bottom(), rect.left()
-
+	
+	def getTextScale(fontFace, thickness, height):
+		view_x = 0
+		# TODO 
 	def markFace(self,frame,faces):
 		"""
 		Adds a bounding box with a label to an image.
@@ -95,15 +98,15 @@ class Processor:
 			name = face[0]
 			confidence = face[1]
 			(top,right,bottom,left) = self.rect_to_css(face[2]) # or is it (top,right,bottom,left?
-			text = "{0} - confidence of {1:.2f}%".format(name,confidence*100)
+			text = "{0} ({1:.2f}%)".format(name,confidence*100)
 
 			# Draw a box around the face
 			cv.rectangle(frame, (left, top), (right,bottom), (0, 255, 0), 2)
 
 			# Draw a label with a name below the face
-			cv.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), 2)
+			# cv.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), 2)
 			font = cv.FONT_HERSHEY_DUPLEX
-			cv.putText(frame,text, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+			cv.putText(frame,text, (left + 6, bottom - 6), font, 0.5, (128, 128, 0), 1)
 		return frame
 
 

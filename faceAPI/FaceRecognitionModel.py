@@ -74,12 +74,13 @@ class FaceRecognitionModel():
 
 if __name__ == '__main__':
 	fm = FaceRecognitionModel()
-# 	fm.learnAll("./training-images/")
-	f1 = "./face1.jpg"
-	face = fm.recognize(f1)
-	img = cv.imread(f1)
-	img = fm.processor.markFace(img,face)
-	cv.imwrite("./test.jpg",img)
-	cv.imshow("",img)
-	# fm.recognize("./test-images/will_1.jpg")
-	# fm.recognize("./test-images/arnold_1.jpeg")
+ 	#fm.learnAll("./small-training-images/")
+
+
+
+	imgs = openface.data.iterImgs("./testing-images");
+	for imgObject in imgs:
+		face = fm.recognize(imgObject.path);
+		img = fm.processor.markFace(imgObject.getBGR(),face)
+		text = "./marked-testing-images/"+"marked-"+ imgObject.name + ".png"
+		cv.imwrite(text,img)
