@@ -72,15 +72,15 @@ class FaceRecognitionModel():
 		# This file has the SVM model you'll use to recognize new face
 		print("Finished learning all knowledge!")
 
-if __name__ == '__main__':
-	fm = FaceRecognitionModel()
- 	#fm.learnAll("./small-training-images/")
+# if __name__ == '__main__':
+# 	fm = FaceRecognitionModel()
+#  	#fm.learnAll("./small-training-images/")
 
 
 
-	imgs = openface.data.iterImgs("./testing-images");
-	for imgObject in imgs:
-		face = fm.recognize(imgObject.path);
-		img = fm.processor.markFace(imgObject.getBGR(),face)
-		text = "./marked-testing-images/"+"marked-"+ imgObject.name + ".png"
-		cv.imwrite(text,img)
+# 	imgs = openface.data.iterImgs("./testing-images");
+# 	for imgObject in imgs:
+# 		face = fm.recognize(imgObject.path);
+# 		img = fm.processor.markFace(imgObject.getBGR(),face)
+# 		text = "./marked-testing-images/"+"marked-"+ imgObject.name + ".png"
+# 		cv.imwrite(text,img)
